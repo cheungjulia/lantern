@@ -81,7 +81,7 @@ export class IntrospectorModal extends Modal {
       .onClick(() => this.sendMessage());
 
     new ButtonComponent(buttonContainer)
-      .setButtonText('Summarise Convo')
+      .setButtonText('Summarise')
       .onClick(() => this.finishSession());
 
     // Start the session

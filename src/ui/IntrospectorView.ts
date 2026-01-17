@@ -84,7 +84,7 @@ export class IntrospectorView extends ItemView {
 
     this.inputEl = inputFooter.createEl('textarea', {
       cls: 'introspector-input',
-      attr: { placeholder: 'Rambles, tidbits, before and afterthoughts', rows: '2' }
+      attr: { placeholder: 'Rambles, tidbits, before-and-after-thoughts', rows: '3' }
     });
 
     this.inputEl.addEventListener('keydown', (e) => {
@@ -99,7 +99,7 @@ export class IntrospectorView extends ItemView {
     const sendBtn = buttonContainer.createEl('button', { cls: 'introspector-btn introspector-btn-primary', text: 'Send' });
     sendBtn.addEventListener('click', () => this.sendMessage());
 
-    const finishBtn = buttonContainer.createEl('button', { cls: 'introspector-btn', text: 'Finish' });
+    const finishBtn = buttonContainer.createEl('button', { cls: 'introspector-btn', text: 'Summarise' });
     finishBtn.addEventListener('click', () => this.finishSession());
 
     const newBtn = buttonContainer.createEl('button', { cls: 'introspector-btn', text: 'New' });

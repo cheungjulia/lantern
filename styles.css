@@ -95,7 +95,7 @@
   background: var(--interactive-accent);
   color: var(--text-on-accent);
   margin-left: 20%;
-  border-radius: 12px 12px 2px 12px;
+  border-radius: 12px 12px 0px 12px;
 }
 
 .introspector-message.haiku {
@@ -112,6 +112,7 @@
   flex: 0 0 auto;
   background: var(--background-secondary);
   padding: 10px;
+  padding-bottom: 36px;
   border-top: 1px solid var(--background-modifier-border);
 }
 
