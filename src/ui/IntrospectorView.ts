@@ -86,12 +86,12 @@ export class IntrospectorView extends ItemView {
     // Conversation area
     this.conversationEl = container.createDiv({ cls: 'introspector-conversation' });
 
-    // Input area
-    const inputContainer = container.createDiv({ cls: 'introspector-input-container' });
+    // Input footer (input + buttons together)
+    const inputFooter = container.createDiv({ cls: 'introspector-footer' });
 
-    this.inputEl = inputContainer.createEl('textarea', {
+    this.inputEl = inputFooter.createEl('textarea', {
       cls: 'introspector-input',
-      attr: { placeholder: 'Share your thoughts, or pick a number...', rows: '3' }
+      attr: { placeholder: 'Rambles, tidbits, before and afterthoughts', rows: '2' }
     });
 
     this.inputEl.addEventListener('keydown', (e) => {
@@ -101,8 +101,7 @@ export class IntrospectorView extends ItemView {
       }
     });
 
-    // Buttons
-    const buttonContainer = container.createDiv({ cls: 'introspector-buttons' });
+    const buttonContainer = inputFooter.createDiv({ cls: 'introspector-buttons' });
 
     const sendBtn = buttonContainer.createEl('button', { cls: 'introspector-btn introspector-btn-primary', text: 'Send' });
     sendBtn.addEventListener('click', () => this.sendMessage());
@@ -119,152 +118,197 @@ export class IntrospectorView extends ItemView {
 
   private addStyles() {
     const existingStyle = document.getElementById('introspector-styles');
-    if (existingStyle) return;
+    if (existingStyle) existingStyle.remove();
 
     const styleEl = document.createElement('style');
     styleEl.id = 'introspector-styles';
     styleEl.textContent = `
-      .introspector-view {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+      /* Force full height on all parent containers */
+      .workspace-leaf-content[data-type="introspector-view"],
+      .workspace-leaf-content[data-type="introspector-view"] > .view-content {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
       }
+
+      .introspector-view {
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 auto !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+      }
+
       .introspector-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
+        padding: 8px 10px;
         border-bottom: 1px solid var(--background-modifier-border);
+        flex: 0 0 auto;
+        background: var(--background-primary);
       }
+
       .introspector-title {
         font-weight: 600;
-        font-size: 1.1em;
+        font-size: 1em;
       }
+
       .introspector-personality-select {
         padding: 4px 8px;
         border-radius: 4px;
         background: var(--background-secondary);
         border: 1px solid var(--background-modifier-border);
         color: var(--text-normal);
+        font-size: 0.85em;
       }
+
       .introspector-conversation {
-        flex: 1;
-        overflow-y: auto;
-        margin-bottom: 16px;
-        padding: 8px;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        padding: 10px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
       }
+
       .introspector-message {
-        padding: 12px;
+        padding: 10px 12px;
         border-radius: 8px;
         line-height: 1.5;
+        flex: 0 0 auto;
       }
+
       .introspector-message.assistant {
         background: var(--background-secondary);
         border-left: 3px solid var(--interactive-accent);
       }
+
       .introspector-message.assistant p {
-        margin: 0 0 8px 0;
+        margin: 0 0 6px 0;
       }
+
       .introspector-message.assistant p:last-child {
         margin-bottom: 0;
       }
+
       .introspector-message.assistant strong {
         color: var(--text-accent);
       }
+
       .introspector-message.assistant em {
         color: var(--text-muted);
       }
+
       .introspector-message.assistant ol,
       .introspector-message.assistant ul {
-        margin: 8px 0;
+        margin: 6px 0;
         padding-left: 20px;
       }
+
       .introspector-message.assistant li {
-        margin: 4px 0;
+        margin: 2px 0;
       }
+
       .introspector-message.user {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
-        margin-left: 15%;
-        border-radius: 8px 8px 0 8px;
+        margin-left: 20%;
+        border-radius: 12px 12px 2px 12px;
       }
+
       .introspector-message.haiku {
-        text-align: center;
         font-style: italic;
-        background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-primary) 100%);
-        border: 1px solid var(--background-modifier-border);
-        border-left: none;
+        background: var(--background-secondary);
+        border-left: 3px solid var(--interactive-accent);
       }
-      .introspector-message.haiku p {
-        margin: 4px 0;
-      }
+
       .introspector-message.streaming {
-        opacity: 0.9;
+        opacity: 0.85;
       }
-      .introspector-input-container {
-        margin-bottom: 12px;
+
+      .introspector-footer {
+        flex: 0 0 auto;
+        background: var(--background-secondary);
+        padding: 10px;
+        border-top: 1px solid var(--background-modifier-border);
       }
+
       .introspector-input {
         width: 100%;
-        resize: vertical;
-        padding: 10px;
+        resize: none;
+        padding: 10px 12px;
         border-radius: 8px;
-        border: 1px solid var(--background-modifier-border);
+        border: none;
         background: var(--background-primary);
         color: var(--text-normal);
         font-family: inherit;
         font-size: inherit;
+        margin-bottom: 8px;
+        box-sizing: border-box;
       }
+
       .introspector-input:focus {
         outline: none;
-        border-color: var(--interactive-accent);
+        box-shadow: 0 0 0 2px var(--interactive-accent-hover);
       }
+
+      .introspector-input::placeholder {
+        color: var(--text-faint);
+      }
+
       .introspector-buttons {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         justify-content: flex-end;
       }
+
       .introspector-btn {
-        padding: 8px 16px;
+        padding: 6px 12px;
         border-radius: 6px;
         border: 1px solid var(--background-modifier-border);
-        background: var(--background-secondary);
+        background: var(--background-primary);
         color: var(--text-normal);
         cursor: pointer;
-        font-size: 0.9em;
+        font-size: 0.8em;
       }
+
       .introspector-btn:hover {
         background: var(--background-modifier-hover);
       }
+
       .introspector-btn-primary {
         background: var(--interactive-accent);
         color: var(--text-on-accent);
         border: none;
       }
+
       .introspector-btn-primary:hover {
         opacity: 0.9;
       }
+
       .introspector-loading {
-        padding: 12px;
+        padding: 10px;
         font-style: italic;
         color: var(--text-muted);
         text-align: center;
       }
+
       .introspector-error {
         color: var(--text-error);
-        padding: 12px;
+        padding: 10px;
         background: var(--background-secondary);
         border-radius: 8px;
         border-left: 3px solid var(--text-error);
       }
+
       .introspector-success {
         color: var(--text-success);
-        padding: 12px;
+        padding: 10px;
         background: var(--background-secondary);
         border-radius: 8px;
         border-left: 3px solid var(--text-success);

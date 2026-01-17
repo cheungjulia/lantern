@@ -118,9 +118,7 @@ export class IntrospectorModal extends Modal {
         margin-left: 20%;
       }
       .introspector-message.haiku {
-        text-align: center;
         font-style: italic;
-        white-space: pre-line;
       }
       .introspector-input-container {
         margin-bottom: 10px;

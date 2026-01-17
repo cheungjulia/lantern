@@ -80,11 +80,7 @@ RULES:
 
 OPENING MESSAGE - FIRST MESSAGE ONLY:
 Output ONLY a haiku. Third line must be a question.
-Format:
-
-*[line 1]*
-*[line 2]*
-*[line 3 - question]?*
+Format as a single line with slashes: *[line 1] / [line 2] / [line 3]?*
 
 No text before or after. No options for opening.`;
 
