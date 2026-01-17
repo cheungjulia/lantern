@@ -1,5 +1,6 @@
 import { App, TFile, TFolder, normalizePath } from 'obsidian';
 import type { IntrospectorSettings, IntrospectionSummary, ConversationMessage } from '../types';
+import { CONTEXT_FILE_LIMIT, CONTEXT_SNIPPET_LENGTH } from '../constants';
 
 export class VaultService {
   constructor(private app: App) {}
@@ -22,16 +23,15 @@ export class VaultService {
       }
     }
 
-    // Sort by modification time, take most recent 10
+    // Sort by modification time, take most recent files
     relevantFiles.sort((a, b) => b.stat.mtime - a.stat.mtime);
-    const recentFiles = relevantFiles.slice(0, 10);
+    const recentFiles = relevantFiles.slice(0, CONTEXT_FILE_LIMIT);
 
     // Read content from recent files
     for (const file of recentFiles) {
       const content = await this.app.vault.read(file);
-      // Take first 500 chars to avoid overwhelming context
-      const snippet = content.slice(0, 500);
-      contextParts.push(`From "${file.basename}":\n${snippet}${content.length > 500 ? '...' : ''}`);
+      const snippet = content.slice(0, CONTEXT_SNIPPET_LENGTH);
+      contextParts.push(`From "${file.basename}":\n${snippet}${content.length > CONTEXT_SNIPPET_LENGTH ? '...' : ''}`);
     }
 
     return contextParts.join('\n\n---\n\n');

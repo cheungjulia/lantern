@@ -4,15 +4,18 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import type { ConversationMessage, Personality, Provider } from '../types';
 import { getSystemPrompt } from '../prompts/personalities';
 import { SUMMARY_PROMPT, formatSummaryRequest } from '../prompts/summary';
+import { MAX_CONVERSATION_TOKENS, MAX_SUMMARY_TOKENS } from '../constants';
 
 export class ClaudeService {
   private apiKey: string = '';
   private provider: Provider = 'anthropic';
+  private anthropicModel: string = 'claude-sonnet-4-20250514';
   private openRouterModel: string = 'anthropic/claude-sonnet-4';
 
-  configure(provider: Provider, apiKey: string, openRouterModel?: string): void {
+  configure(provider: Provider, apiKey: string, anthropicModel?: string, openRouterModel?: string): void {
     this.provider = provider;
     this.apiKey = apiKey;
+    this.anthropicModel = anthropicModel ?? 'claude-sonnet-4-20250514';
     this.openRouterModel = openRouterModel ?? 'anthropic/claude-sonnet-4';
   }
 
@@ -23,7 +26,7 @@ export class ClaudeService {
   private getModel() {
     if (this.provider === 'anthropic') {
       const anthropic = createAnthropic({ apiKey: this.apiKey });
-      return anthropic('claude-sonnet-4-20250514');
+      return anthropic(this.anthropicModel);
     } else {
       const openrouter = createOpenRouter({ apiKey: this.apiKey });
       return openrouter.chat(this.openRouterModel);
@@ -48,7 +51,7 @@ export class ClaudeService {
       model: this.getModel(),
       system: systemPrompt,
       messages: formattedMessages,
-      maxOutputTokens: 500
+      maxOutputTokens: MAX_CONVERSATION_TOKENS
     });
 
     for await (const chunk of result.textStream) {
@@ -68,7 +71,7 @@ export class ClaudeService {
       model: this.getModel(),
       system: systemPrompt,
       messages: [{ role: 'user', content: 'Begin the session.' }],
-      maxOutputTokens: 500
+      maxOutputTokens: MAX_CONVERSATION_TOKENS
     });
 
     for await (const chunk of result.textStream) {
@@ -85,7 +88,7 @@ export class ClaudeService {
       model: this.getModel(),
       system: SUMMARY_PROMPT,
       messages: [{ role: 'user', content: formatSummaryRequest(conversationText) }],
-      maxOutputTokens: 1000
+      maxOutputTokens: MAX_SUMMARY_TOKENS
     });
 
     let text = '';

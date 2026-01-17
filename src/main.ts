@@ -10,18 +10,23 @@ export default class IntrospectorPlugin extends Plugin {
   private claudeService: ClaudeService = new ClaudeService();
   private vaultService: VaultService | null = null;
 
+  private configureClaudeService(): void {
+    if (this.settings.apiKey) {
+      this.claudeService.configure(
+        this.settings.provider,
+        this.settings.apiKey,
+        this.settings.anthropicModel,
+        this.settings.openRouterModel
+      );
+    }
+  }
+
   async onload() {
     await this.loadSettings();
 
     // Initialize services
     this.vaultService = new VaultService(this.app);
-    if (this.settings.apiKey) {
-      this.claudeService.configure(
-        this.settings.provider,
-        this.settings.apiKey,
-        this.settings.openRouterModel
-      );
-    }
+    this.configureClaudeService();
 
     // Register the sidebar view
     this.registerView(
@@ -63,11 +68,7 @@ export default class IntrospectorPlugin extends Plugin {
     }
 
     // Update config in case it changed
-    this.claudeService.configure(
-      this.settings.provider,
-      this.settings.apiKey,
-      this.settings.openRouterModel
-    );
+    this.configureClaudeService();
 
     if (!this.vaultService) {
       new Notice('Plugin not fully initialized. Please reload.');
@@ -98,13 +99,6 @@ export default class IntrospectorPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
-    // Update Claude service with new config
-    if (this.settings.apiKey) {
-      this.claudeService.configure(
-        this.settings.provider,
-        this.settings.apiKey,
-        this.settings.openRouterModel
-      );
-    }
+    this.configureClaudeService();
   }
 }

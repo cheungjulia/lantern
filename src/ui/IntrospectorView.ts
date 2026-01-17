@@ -1,5 +1,6 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer, Component } from 'obsidian';
 import type { ConversationMessage, Personality, IntrospectorSettings, ConversationState, IntrospectionSummary } from '../types';
+import { PERSONALITY_OPTIONS } from '../types';
 import { ClaudeService } from '../services/claude';
 import { VaultService } from '../services/vault';
 
@@ -55,8 +56,6 @@ export class IntrospectorView extends ItemView {
     container.empty();
     container.addClass('introspector-view');
 
-    this.addStyles();
-
     // Header with personality selector
     const headerEl = container.createDiv({ cls: 'introspector-header' });
 
@@ -66,13 +65,7 @@ export class IntrospectorView extends ItemView {
     const selectContainer = headerEl.createDiv({ cls: 'introspector-select-container' });
     const selectEl = selectContainer.createEl('select', { cls: 'introspector-personality-select' });
 
-    const options: { value: Personality; label: string }[] = [
-      { value: 'socratic', label: 'Socratic Guide' },
-      { value: 'warm', label: 'Warm Therapist' },
-      { value: 'challenger', label: 'Direct Challenger' }
-    ];
-
-    for (const opt of options) {
+    for (const opt of PERSONALITY_OPTIONS) {
       const optionEl = selectEl.createEl('option', { value: opt.value, text: opt.label });
       if (opt.value === this.state.personality) {
         optionEl.selected = true;
@@ -114,207 +107,6 @@ export class IntrospectorView extends ItemView {
 
     // Start the session
     await this.startSession();
-  }
-
-  private addStyles() {
-    const existingStyle = document.getElementById('introspector-styles');
-    if (existingStyle) existingStyle.remove();
-
-    const styleEl = document.createElement('style');
-    styleEl.id = 'introspector-styles';
-    styleEl.textContent = `
-      /* Force full height on all parent containers */
-      .workspace-leaf-content[data-type="introspector-view"],
-      .workspace-leaf-content[data-type="introspector-view"] > .view-content {
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-      }
-
-      .introspector-view {
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1 1 auto !important;
-        height: 100% !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
-      }
-
-      .introspector-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 10px;
-        border-bottom: 1px solid var(--background-modifier-border);
-        flex: 0 0 auto;
-        background: var(--background-primary);
-      }
-
-      .introspector-title {
-        font-weight: 600;
-        font-size: 1em;
-      }
-
-      .introspector-personality-select {
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: var(--background-secondary);
-        border: 1px solid var(--background-modifier-border);
-        color: var(--text-normal);
-        font-size: 0.85em;
-      }
-
-      .introspector-conversation {
-        flex: 1 1 auto !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .introspector-message {
-        padding: 10px 12px;
-        border-radius: 8px;
-        line-height: 1.5;
-        flex: 0 0 auto;
-      }
-
-      .introspector-message.assistant {
-        background: var(--background-secondary);
-        border-left: 3px solid var(--interactive-accent);
-      }
-
-      .introspector-message.assistant p {
-        margin: 0 0 6px 0;
-      }
-
-      .introspector-message.assistant p:last-child {
-        margin-bottom: 0;
-      }
-
-      .introspector-message.assistant strong {
-        color: var(--text-accent);
-      }
-
-      .introspector-message.assistant em {
-        color: var(--text-muted);
-      }
-
-      .introspector-message.assistant ol,
-      .introspector-message.assistant ul {
-        margin: 6px 0;
-        padding-left: 20px;
-      }
-
-      .introspector-message.assistant li {
-        margin: 2px 0;
-      }
-
-      .introspector-message.user {
-        background: var(--interactive-accent);
-        color: var(--text-on-accent);
-        margin-left: 20%;
-        border-radius: 12px 12px 2px 12px;
-      }
-
-      .introspector-message.haiku {
-        font-style: italic;
-        background: var(--background-secondary);
-        border-left: 3px solid var(--interactive-accent);
-      }
-
-      .introspector-message.streaming {
-        opacity: 0.85;
-      }
-
-      .introspector-footer {
-        flex: 0 0 auto;
-        background: var(--background-secondary);
-        padding: 10px;
-        border-top: 1px solid var(--background-modifier-border);
-      }
-
-      .introspector-input {
-        width: 100%;
-        resize: none;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: none;
-        background: var(--background-primary);
-        color: var(--text-normal);
-        font-family: inherit;
-        font-size: inherit;
-        margin-bottom: 8px;
-        box-sizing: border-box;
-      }
-
-      .introspector-input:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px var(--interactive-accent-hover);
-      }
-
-      .introspector-input::placeholder {
-        color: var(--text-faint);
-      }
-
-      .introspector-buttons {
-        display: flex;
-        gap: 6px;
-        justify-content: flex-end;
-      }
-
-      .introspector-btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid var(--background-modifier-border);
-        background: var(--background-primary);
-        color: var(--text-normal);
-        cursor: pointer;
-        font-size: 0.8em;
-      }
-
-      .introspector-btn:hover {
-        background: var(--background-modifier-hover);
-      }
-
-      .introspector-btn-primary {
-        background: var(--interactive-accent);
-        color: var(--text-on-accent);
-        border: none;
-      }
-
-      .introspector-btn-primary:hover {
-        opacity: 0.9;
-      }
-
-      .introspector-loading {
-        padding: 10px;
-        font-style: italic;
-        color: var(--text-muted);
-        text-align: center;
-      }
-
-      .introspector-error {
-        color: var(--text-error);
-        padding: 10px;
-        background: var(--background-secondary);
-        border-radius: 8px;
-        border-left: 3px solid var(--text-error);
-      }
-
-      .introspector-success {
-        color: var(--text-success);
-        padding: 10px;
-        background: var(--background-secondary);
-        border-radius: 8px;
-        border-left: 3px solid var(--text-success);
-      }
-    `;
-    document.head.appendChild(styleEl);
   }
 
   private async startSession() {
@@ -472,38 +264,6 @@ export class IntrospectorView extends ItemView {
     }
   }
 
-  private async renderConversation() {
-    if (!this.conversationEl) return;
-    this.conversationEl.empty();
-
-    for (let i = 0; i < this.state.messages.length; i++) {
-      const message = this.state.messages[i];
-      if (!message) continue;
-
-      const msgEl = this.conversationEl.createDiv({
-        cls: `introspector-message ${message.role}`
-      });
-
-      if (i === 0 && message.role === 'assistant') {
-        msgEl.addClass('haiku');
-      }
-
-      if (message.role === 'assistant') {
-        await MarkdownRenderer.render(
-          this.app,
-          message.content,
-          msgEl,
-          '',
-          this.renderComponent
-        );
-      } else {
-        msgEl.setText(message.content);
-      }
-    }
-
-    this.conversationEl.scrollTop = this.conversationEl.scrollHeight;
-  }
-
   private showLoading(message: string) {
     this.isLoading = true;
     if (this.conversationEl) {
@@ -536,7 +296,7 @@ export class IntrospectorView extends ItemView {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0] ?? date.toISOString().slice(0, 10);
+    return date.toISOString().slice(0, 10);
   }
 
   async onClose() {

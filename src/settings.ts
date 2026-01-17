@@ -1,14 +1,15 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import type IntrospectorPlugin from "./main";
 import type { IntrospectorSettings, Personality, Provider } from "./types";
+import { PERSONALITY_OPTIONS } from "./types";
 
 export const DEFAULT_SETTINGS: IntrospectorSettings = {
   provider: 'anthropic',
   apiKey: '',
+  anthropicModel: 'claude-sonnet-4-20250514',
   openRouterModel: 'anthropic/claude-sonnet-4',
   saveFolder: 'Introspections',
   contextFolders: [],
-  contextTags: [],
   defaultPersonality: 'socratic'
 };
 
@@ -58,6 +59,19 @@ export class IntrospectorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    if (this.plugin.settings.provider === 'anthropic') {
+      new Setting(containerEl)
+        .setName('Model')
+        .setDesc('Anthropic model ID (e.g., claude-sonnet-4-20250514, claude-opus-4-20250514)')
+        .addText(text => text
+          .setPlaceholder('claude-sonnet-4-20250514')
+          .setValue(this.plugin.settings.anthropicModel)
+          .onChange(async (value) => {
+            this.plugin.settings.anthropicModel = value;
+            await this.plugin.saveSettings();
+          }));
+    }
+
     if (this.plugin.settings.provider === 'openrouter') {
       new Setting(containerEl)
         .setName('Model')
@@ -97,30 +111,18 @@ export class IntrospectorSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Context tags')
-      .setDesc('Comma-separated list of tags to include for context')
-      .addText(text => text
-        .setPlaceholder('reflection, journal')
-        .setValue(this.plugin.settings.contextTags.join(', '))
-        .onChange(async (value) => {
-          this.plugin.settings.contextTags = value
-            .split(',')
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
       .setName('Default personality')
       .setDesc('The default questioning style')
-      .addDropdown(dropdown => dropdown
-        .addOption('socratic', 'Socratic Guide')
-        .addOption('warm', 'Warm Therapist')
-        .addOption('challenger', 'Direct Challenger')
-        .setValue(this.plugin.settings.defaultPersonality)
-        .onChange(async (value) => {
-          this.plugin.settings.defaultPersonality = value as Personality;
-          await this.plugin.saveSettings();
-        }));
+      .addDropdown(dropdown => {
+        for (const opt of PERSONALITY_OPTIONS) {
+          dropdown.addOption(opt.value, opt.label);
+        }
+        return dropdown
+          .setValue(this.plugin.settings.defaultPersonality)
+          .onChange(async (value) => {
+            this.plugin.settings.defaultPersonality = value as Personality;
+            await this.plugin.saveSettings();
+          });
+      });
   }
 }
