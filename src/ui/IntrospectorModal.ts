@@ -143,31 +143,41 @@ export class IntrospectorModal extends Modal {
   }
 
   private async startSession() {
-    this.showLoading('Starting session...');
+    if (!this.conversationEl) return;
+
+    this.isLoading = true;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message assistant haiku'
+    });
+    msgEl.setText('Starting session...');
 
     try {
-      // Get vault context
       this.vaultContext = await this.vaultService.getContextFromVault(this.settings);
 
-      // Get opening from Claude
-      const opening = await this.claudeService.startConversation(
+      let fullText = '';
+      const stream = this.claudeService.startConversationStream(
         this.state.personality,
         this.vaultContext
       );
 
-      this.state.openingHaiku = opening;
-      this.state.messages.push({ role: 'assistant', content: opening });
+      for await (const chunk of stream) {
+        fullText += chunk;
+        msgEl.setText(fullText);
+        this.conversationEl!.scrollTop = this.conversationEl!.scrollHeight;
+      }
 
-      this.hideLoading();
-      this.renderConversation();
+      this.state.openingHaiku = fullText;
+      this.state.messages.push({ role: 'assistant', content: fullText });
+      this.isLoading = false;
     } catch (error) {
-      this.hideLoading();
+      msgEl.remove();
+      this.isLoading = false;
       this.showError(`Failed to start session: ${error}`);
     }
   }
 
   private async sendMessage() {
-    if (!this.inputEl || this.isLoading) return;
+    if (!this.inputEl || !this.conversationEl || this.isLoading) return;
 
     const userMessage = this.inputEl.getValue().trim();
     if (!userMessage) return;
@@ -175,7 +185,7 @@ export class IntrospectorModal extends Modal {
     // Check for "aha" trigger
     if (userMessage.toLowerCase().includes('aha')) {
       this.state.messages.push({ role: 'user', content: userMessage });
-      this.renderConversation();
+      this.renderUserMessage(userMessage);
       this.inputEl.setValue('');
       await this.finishSession();
       return;
@@ -183,28 +193,45 @@ export class IntrospectorModal extends Modal {
 
     // Add user message
     this.state.messages.push({ role: 'user', content: userMessage });
-    this.renderConversation();
+    this.renderUserMessage(userMessage);
     this.inputEl.setValue('');
 
-    this.showLoading('Reflecting...');
+    this.isLoading = true;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message assistant'
+    });
 
     try {
-      const { response, detectedResolution } = await this.claudeService.continueConversation(
+      let fullText = '';
+      const stream = this.claudeService.streamConversation(
         this.state.personality,
         this.state.messages,
         this.vaultContext
       );
 
-      this.state.messages.push({ role: 'assistant', content: response });
-      this.hideLoading();
-      this.renderConversation();
+      for await (const chunk of stream) {
+        fullText += chunk;
+        msgEl.setText(fullText);
+        this.conversationEl!.scrollTop = this.conversationEl!.scrollHeight;
+      }
 
-      // Focus input for next message
+      this.state.messages.push({ role: 'assistant', content: fullText });
+      this.isLoading = false;
       this.inputEl?.inputEl.focus();
     } catch (error) {
-      this.hideLoading();
+      msgEl.remove();
+      this.isLoading = false;
       this.showError(`Failed to get response: ${error}`);
     }
+  }
+
+  private renderUserMessage(content: string) {
+    if (!this.conversationEl) return;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message user'
+    });
+    msgEl.setText(content);
+    this.conversationEl.scrollTop = this.conversationEl.scrollHeight;
   }
 
   private async finishSession() {

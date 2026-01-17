@@ -203,6 +203,9 @@ export class IntrospectorView extends ItemView {
       .introspector-message.haiku p {
         margin: 4px 0;
       }
+      .introspector-message.streaming {
+        opacity: 0.9;
+      }
       .introspector-input-container {
         margin-bottom: 12px;
       }
@@ -271,23 +274,42 @@ export class IntrospectorView extends ItemView {
   }
 
   private async startSession() {
-    this.showLoading('Starting session...');
+    if (!this.conversationEl) return;
+
+    this.isLoading = true;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message assistant haiku streaming'
+    });
 
     try {
       this.vaultContext = await this.vaultService.getContextFromVault(this.settings);
 
-      const opening = await this.claudeService.startConversation(
+      let fullText = '';
+      const stream = this.claudeService.startConversationStream(
         this.state.personality,
         this.vaultContext
       );
 
-      this.state.openingHaiku = opening;
-      this.state.messages.push({ role: 'assistant', content: opening });
+      for await (const chunk of stream) {
+        fullText += chunk;
+        msgEl.empty();
+        await MarkdownRenderer.render(
+          this.app,
+          fullText,
+          msgEl,
+          '',
+          this.renderComponent
+        );
+        this.conversationEl!.scrollTop = this.conversationEl!.scrollHeight;
+      }
 
-      this.hideLoading();
-      this.renderConversation();
+      msgEl.removeClass('streaming');
+      this.state.openingHaiku = fullText;
+      this.state.messages.push({ role: 'assistant', content: fullText });
+      this.isLoading = false;
     } catch (error) {
-      this.hideLoading();
+      msgEl.remove();
+      this.isLoading = false;
       this.showError(`Failed to start session: ${error}`);
     }
   }
@@ -306,41 +328,67 @@ export class IntrospectorView extends ItemView {
   }
 
   private async sendMessage() {
-    if (!this.inputEl || this.isLoading) return;
+    if (!this.inputEl || !this.conversationEl || this.isLoading) return;
 
     const userMessage = this.inputEl.value.trim();
     if (!userMessage) return;
 
     if (userMessage.toLowerCase().includes('aha')) {
       this.state.messages.push({ role: 'user', content: userMessage });
-      this.renderConversation();
+      this.renderUserMessage(userMessage);
       this.inputEl.value = '';
       await this.finishSession();
       return;
     }
 
     this.state.messages.push({ role: 'user', content: userMessage });
-    this.renderConversation();
+    this.renderUserMessage(userMessage);
     this.inputEl.value = '';
 
-    this.showLoading('Reflecting...');
+    this.isLoading = true;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message assistant streaming'
+    });
 
     try {
-      const { response } = await this.claudeService.continueConversation(
+      let fullText = '';
+      const stream = this.claudeService.streamConversation(
         this.state.personality,
         this.state.messages,
         this.vaultContext
       );
 
-      this.state.messages.push({ role: 'assistant', content: response });
-      this.hideLoading();
-      this.renderConversation();
+      for await (const chunk of stream) {
+        fullText += chunk;
+        msgEl.empty();
+        await MarkdownRenderer.render(
+          this.app,
+          fullText,
+          msgEl,
+          '',
+          this.renderComponent
+        );
+        this.conversationEl!.scrollTop = this.conversationEl!.scrollHeight;
+      }
 
+      msgEl.removeClass('streaming');
+      this.state.messages.push({ role: 'assistant', content: fullText });
+      this.isLoading = false;
       this.inputEl?.focus();
     } catch (error) {
-      this.hideLoading();
+      msgEl.remove();
+      this.isLoading = false;
       this.showError(`Failed to get response: ${error}`);
     }
+  }
+
+  private renderUserMessage(content: string) {
+    if (!this.conversationEl) return;
+    const msgEl = this.conversationEl.createDiv({
+      cls: 'introspector-message user'
+    });
+    msgEl.setText(content);
+    this.conversationEl.scrollTop = this.conversationEl.scrollHeight;
   }
 
   private async finishSession() {
