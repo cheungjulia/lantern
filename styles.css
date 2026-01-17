@@ -1,8 +1,81 @@
-/*
+/* Introspector Modal Styles */
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.introspector-modal {
+  padding: 20px;
+  min-width: 500px;
+  max-width: 700px;
+}
 
-If your plugin does not need CSS, delete this file.
+.introspector-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
 
-*/
+.introspector-header .setting-item {
+  border: none;
+  padding: 0;
+}
+
+.introspector-conversation {
+  max-height: 50vh;
+  min-height: 200px;
+  overflow-y: auto;
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+}
+
+.introspector-message {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.introspector-message.assistant {
+  background: var(--background-secondary);
+  margin-right: 15%;
+}
+
+.introspector-message.assistant.haiku {
+  text-align: center;
+  font-style: italic;
+  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-secondary-alt) 100%);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.introspector-message.user {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  margin-left: 15%;
+  text-align: right;
+}
+
+.introspector-input-container {
+  margin-bottom: 12px;
+}
+
+.introspector-input {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.introspector-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.introspector-loading {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-muted);
+  font-style: italic;
+}
