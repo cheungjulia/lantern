@@ -1,4 +1,4 @@
-import { Plugin, Notice, WorkspaceLeaf } from 'obsidian';
+import { Plugin, Notice } from 'obsidian';
 import type { IntrospectorSettings } from './types';
 import { DEFAULT_SETTINGS, IntrospectorSettingTab } from './settings';
 import { ClaudeService } from './services/claude';
@@ -40,14 +40,14 @@ export default class IntrospectorPlugin extends Plugin {
     );
 
     // Add ribbon icon
-    this.addRibbonIcon('brain', 'Start introspection', () => {
+    this.addRibbonIcon('brain', 'Light the Lantern', () => {
       this.openIntrospector();
     });
 
     // Add command
     this.addCommand({
-      id: 'open-introspector',
-      name: 'Start introspection session',
+      id: 'open-lantern',
+      name: 'Light the Lantern',
       callback: () => {
         this.openIntrospector();
       }
@@ -63,7 +63,7 @@ export default class IntrospectorPlugin extends Plugin {
 
   private async openIntrospector() {
     if (!this.settings.apiKey) {
-      new Notice('Please configure your API key in Introspector settings.');
+      new Notice('Please configure your API key in Lantern settings.');
       return;
     }
 

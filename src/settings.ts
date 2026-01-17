@@ -25,7 +25,7 @@ export class IntrospectorSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl('h2', { text: 'Introspector Settings' });
+    containerEl.createEl('h2', { text: 'Lantern Settings' });
 
     new Setting(containerEl)
       .setName('Provider')

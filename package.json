@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-lantern",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "AI-powered introspective dialogue for self-reflection and insight discovery.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

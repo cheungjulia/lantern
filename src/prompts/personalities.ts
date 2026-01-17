@@ -30,11 +30,11 @@ RESPONSE FORMAT:
 
 3. **Vary your style** - alternate between:
 
-   **OPEN-ENDED** (~60%):
+   **OPEN-ENDED** (~40%):
    Just ask and let them respond.
    Example: "What does that fear actually feel like?"
 
-   **WITH OPTIONS** (~40%):
+   **WITH OPTIONS** (~60%):
    Offer 3-5 numbered paths.
    Example:
    "What's driving this?

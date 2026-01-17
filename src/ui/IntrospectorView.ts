@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer, Component } from 'obsidian';
-import type { ConversationMessage, Personality, IntrospectorSettings, ConversationState, IntrospectionSummary } from '../types';
+import type { Personality, IntrospectorSettings, ConversationState, IntrospectionSummary } from '../types';
 import { PERSONALITY_OPTIONS } from '../types';
 import { ClaudeService } from '../services/claude';
 import { VaultService } from '../services/vault';
@@ -41,7 +41,7 @@ export class IntrospectorView extends ItemView {
   }
 
   getDisplayText(): string {
-    return 'Introspector';
+    return 'Lantern';
   }
 
   getIcon(): string {
@@ -60,7 +60,7 @@ export class IntrospectorView extends ItemView {
     const headerEl = container.createDiv({ cls: 'introspector-header' });
 
     const titleEl = headerEl.createDiv({ cls: 'introspector-title' });
-    titleEl.setText('Introspector');
+    titleEl.setText('Lantern');
 
     const selectContainer = headerEl.createDiv({ cls: 'introspector-select-container' });
     const selectEl = selectContainer.createEl('select', { cls: 'introspector-personality-select' });

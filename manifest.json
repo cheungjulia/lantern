@@ -1,10 +1,10 @@
 {
-	"id": "introspector",
-	"name": "Introspector",
+	"id": "lantern",
+	"name": "Lantern",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "AI-powered introspective dialogue for self-reflection and insight discovery.",
-	"author": "Your Name",
-	"authorUrl": "https://github.com/yourusername",
+	"author": "Julia Cheung",
+	"authorUrl": "https://github.com/cheungjulia",
 	"isDesktopOnly": false
 }
